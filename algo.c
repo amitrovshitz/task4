@@ -1,75 +1,68 @@
 #include <limits.h>
+
 #include "algo.h"
 #include "edges.h"
 #include "graph.h"
 #include "nodes.h"
 #include "queue.h"
-
-//Dijkstra's algorithm is a popular algorithm for finding the shortest path between nodes in a graph.
-void dijkstra(int *arr, pnode source)
-//The function takes two parameters as input, an integer array "arr" and a pointer "source" to a node in the graph.
- {
-    qnode *source_queue = new_queuenode(source, 0);// creates a new queue node "source_queue" and initializes it with the source node and a distance of 0.
-    while (!isEmpty(&source_queue))//The while loop continues until the queue is empty
-     {
-        source = pop(&source_queue);//the source node is popped from the queue and a pointer "curr_edge" is initialized with the source node's edges.
-        pedge curr_edge = source->edges;
-        while (curr_edge)//The while loop continues until there are no more edges for the current node.
-         {
-            if (arr[source->index] + curr_edge->weight < arr[curr_edge->endpoint->index]) //the function checks if the distance from the source node to the current node plus the weight of the edge is less than the current distance to the endpoint node.
-            {
-                //the distance to the endpoint node is updated and the endpoint node is pushed to the queue with the new distance.
-                arr[curr_edge->endpoint->index] = arr[source->index] + curr_edge->weight;
-                push(&source_queue, curr_edge->endpoint, arr[curr_edge->endpoint->index]);
+//The function takes in two parameters: an array of integers "arr" and a pointer to a node "src" representing the source vertex in a graph.
+//This algorithm is used to find the shortest path from a source node to all other nodes in a weighted graph, where the edge weights are non-negative.
+void dijkstra(int *arr, pnode src) {
+    qnode *sq = new_queue_node(src, 0);
+    while (!is_empty(&sq)) {
+        src = pop(&sq);
+        pedge curr_edge = src->edges;
+        while (curr_edge) {
+            if (arr[src->index] + curr_edge->weight < arr[curr_edge->endpoint->index]) {
+                arr[curr_edge->endpoint->index] = arr[src->index] + curr_edge->weight;
+                push(&sq, curr_edge->endpoint, arr[curr_edge->endpoint->index]);
             }
-            curr_edge = curr_edge->next;//The curr_edge pointer is updated to point to the next edge
+            curr_edge = curr_edge->next;
         }
     }
 }
+//generates all possible permutations of a given array and finds the shortest path through the permutations using the Dijkstra algorithm. The function takes in the following parameters:
 
-//An integer array "cities" that represents the order of visiting the cities.
-// An integer "start" that represents the starting index of the permutation.
-// An integer "end" that represents the ending index of the permutation.
-// An integer "number_of_nodes" that represents the total number of nodes in the graph.
-// An integer pointer "ans" that represents the current minimum distance.
-// A pointer "head" that points to the head of the graph.
-// This function will help you to find all possible routes between all the cities in the graph and determine the shortest route.
-// It uses the permutation algorithm to generate all possible routes, and the Dijkstra algorithm to find the shortest path between the cities in each
-void permutation(int *cities, int start, int end, int number_of_nodes, int *ans, pnode head) {
+// cheak: the array to generate permutations of
+// start and end: the start and end indices of the permutation
+// size: the size of the array
+// ans: a pointer to an int to store the shortest path length
+// head: a pointer to the head node of a linked list used in the Dijkstra algorithm
+void permutation(int *cheak, int start, int end, int size, int *ans, pnode head) {
     if (start == end) {
-        int route_len = 0;
-        int *dij = (int *)malloc(sizeof(int) * number_of_nodes);
-        for (int i = 0; i < number_of_nodes; i++) {
+        int len = 0;
+        int *dij = (int *)malloc(sizeof(int) * size);
+        for (int i = 0; i < size; i++) {
             dij[i] = INT_MAX;
         }
-        pnode source = find_node(cities[0], head);
-        dij[source->index] = 0;
+        pnode src = find_node(cheak[0], head);
+        dij[src->index] = 0;
         for (int i = 1; i <= end; i++) {
-            dijkstra(dij, source);
-            if (dij[find_node(cities[i], head)->index] == INT_MAX) {
+            dijkstra(dij, src);
+            if (dij[find_node(cheak[i], head)->index] == INT_MAX) {
                 free(dij);
                 return;
             }
-            source = find_node(cities[i], head);
-            route_len = route_len + dij[source->index];
-            for (int j = 0; j < number_of_nodes; j++) {
+            src = find_node(cheak[i], head);
+            len = len + dij[src->index];
+            for (int j = 0; j < size; j++) {
                 dij[j] = INT_MAX;
             }
-            dij[source->index] = 0;
+            dij[src->index] = 0;
         }
         free(dij);
-        if (route_len < *ans && route_len != 0) {
-            *ans = route_len;
+        if (len < *ans && len != 0) {
+            *ans = len;
         }
         return;
     }
     for (int k = start; k <= end; k++) {
-        swap(cities + k, cities + start);
-        permutation(cities, start + 1, end, number_of_nodes, ans, head);
-        swap(cities + k, cities + start);
+        swap(cheak + k, cheak + start);
+        permutation(cheak, start + 1, end, size, ans, head);
+        swap(cheak + k, cheak + start);
     }
 }
-//This function is used to swap the values of two variables. 
+//swaps the values of two variables. It takes in two pointers a and b which point to two integers that need to be swapped.
 void swap(int *a, int *b) {
     int temp = *a;
     *a = *b;

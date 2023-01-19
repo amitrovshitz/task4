@@ -1,5 +1,4 @@
 #include "graph.h"
-
-void dijkstra(int *arr, pnode source);
-void permutation(int *cities, int start, int end, int size_of_nodes, int *ans, pnode head);
-void swap(int *a, int *b);
+void permutation(int *, int , int , int , int *, pnode );
+void dijkstra(int *, pnode );
+void swap(int *, int *);
